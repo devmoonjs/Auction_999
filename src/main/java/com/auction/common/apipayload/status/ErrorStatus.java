@@ -15,8 +15,8 @@ public enum ErrorStatus implements BaseCode {
     _PERMISSION_DENIED(HttpStatus.BAD_REQUEST, "404", "권한이 없습니다."),
 
     //Auth
-    _NOT_AUTHENTICATIONPRINCIPAL_USER(HttpStatus.UNAUTHORIZED, "401", "인증되지 않은 유저입니다.");
-
+    _NOT_AUTHENTICATIONPRINCIPAL_USER(HttpStatus.UNAUTHORIZED, "401", "인증되지 않은 유저입니다."),
+    _NOT_FOUND_USER(HttpStatus.NOT_FOUND, "404", "권한이 없습니다.");
 
 
     private HttpStatus httpStatus;

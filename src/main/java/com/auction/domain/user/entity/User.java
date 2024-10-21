@@ -1,10 +1,9 @@
 package com.auction.domain.user.entity;
 
 import com.auction.common.entity.TimeStamped;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.auction.domain.auth.dto.request.SignupRequestDto;
+import com.auction.domain.user.enums.UserRole;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,13 +17,37 @@ public class User extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true)
     private String email;
+
     private String password;
     private String name;
     private String nickName;
     private int zipCode;
     private String address1;
     private String address2;
-    private String authority;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole authority;
+
+    private boolean activate;
     private LocalDateTime deletedAt;
+
+    public User(String encodedPassword, SignupRequestDto requestDto) {
+        this.email = requestDto.getEmail();
+        this.password = encodedPassword;
+        this.name = requestDto.getName();
+        this.nickName = requestDto.getNickName();
+        this.zipCode = requestDto.getZipCode();
+        this.address1 = requestDto.getAddress1();
+        this.address2 = requestDto.getAddress2();
+        this.authority = UserRole.of(requestDto.getAuthority());
+        this.activate = true;
+    }
+
+    public void changeDeactivate() {
+        this.activate = false;
+        this.deletedAt = LocalDateTime.now();
+    }
 }
