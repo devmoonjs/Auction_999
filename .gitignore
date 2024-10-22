@@ -36,12 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 
-<<<<<<< HEAD
 /src/main/generated/
 
 ### .env ###
 .env
-=======
-### .env ###
-.env
->>>>>>> 305bcbf (chore : test.yml 추가, .env 설정)
