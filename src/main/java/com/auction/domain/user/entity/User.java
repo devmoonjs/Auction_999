@@ -1,5 +1,6 @@
 package com.auction.domain.user.entity;
 
+import com.auction.common.entity.AuthUser;
 import com.auction.common.entity.TimeStamped;
 import com.auction.domain.auth.dto.request.SignupRequestDto;
 import com.auction.domain.user.enums.UserRole;
@@ -49,5 +50,15 @@ public class User extends TimeStamped {
     public void changeDeactivate() {
         this.activate = false;
         this.deletedAt = LocalDateTime.now();
+    }
+
+    private User(Long id, String email, UserRole userRole) {
+        this.id = id;
+        this.email = email;
+        this.authority = userRole;
+    }
+
+    public static User fromAuthUser(AuthUser authUser) {
+        return new User(authUser.getId(), authUser.getEmail(), authUser.getUserRole());
     }
 }
