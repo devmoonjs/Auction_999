@@ -1,10 +1,8 @@
 spring:
   profiles:
     active: dev
-
-  jwt:
-    secret:
-      key: ${JWT_SECRET_KEY}
+  config:
+    import: optional:file:.env[.properties]
 
 cloud:
   aws:
@@ -17,3 +15,7 @@ cloud:
     credentials:
       access-key: ${S3_ACCESS}
       secret-key: ${S3_SECRET}
+
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}
