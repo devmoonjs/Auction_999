@@ -36,17 +36,17 @@ public class UserController {
         return ApiResponse.ok(userService.updateUser(authUser, userUpdateRequest));
     }
 
-    @RequestMapping("/v1/users/myPage/sales")
+    @GetMapping("/v1/users/mypage/sales")
     public ApiResponse<List<AuctionItemResponseDto>> getSales(
         @AuthenticationPrincipal AuthUser authUser) {
 
         return ApiResponse.ok(userService.getSales(authUser));
     }
 
-//    @RequestMapping("/v1/users/myPage/purchases")
-//    public ApiResponse<List<AuctionItemResponseDto>> getPurchases(
-//            @AuthenticationPrincipal AuthUser authUser) {
-//
-//        return ApiResponse.ok(userService.getPurchases(authUser));
-//    }
+    @GetMapping("/v1/users/mypage/purchases")
+    public ApiResponse<List<AuctionItemResponseDto>> getPurchases(
+            @AuthenticationPrincipal AuthUser authUser) {
+
+        return ApiResponse.ok(userService.getPurchases(authUser));
+    }
 }

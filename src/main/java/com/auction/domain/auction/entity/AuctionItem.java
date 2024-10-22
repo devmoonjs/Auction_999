@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -41,6 +43,9 @@ public class AuctionItem extends TimeStamped {
     private LocalDateTime expireAt;
 
     private boolean isAutoExtension;
+
+    @OneToMany(mappedBy = "auctionItem")
+    private List<AuctionHistory> auctionHistoryList = new ArrayList<>();
 
     private AuctionItem(User user, String name, String content, int minPrice, int maxPrice, ItemCategory category, LocalDateTime expireAt, boolean isAutoExtension){
         this.user = user;

@@ -19,7 +19,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,7 +29,6 @@ public class UserService {
     private final AuthService authService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuctionItemRepository auctionItemRepository;
-    private final AuctionHistoryRepository auctionHistoryRepository;
 
     // 유저 soft-delete 처리
     @Transactional
@@ -43,7 +41,6 @@ public class UserService {
         authService.checkPassword(signoutRequest.getPassword(), user.getPassword());
         user.changeDeactivate();
     }
-
 
     // 유저 정보 수정
     @Transactional
@@ -76,19 +73,14 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-//    public List<AuctionItemResponseDto> getPurchases(AuthUser authUser) {
-//        /**
-//         *  옥션 히스토리에서 userId 가 같고 is_sold 가 true 인 값
-//         */
-//        User user = User.fromAuthUser(authUser);
-//
-//        List<AuctionItemResponseDto> purchaseList = new ArrayList<>();
-//
-//        List<AuctionHistory> auctionHistoryList = user.getAuctionHistoryList();
-//        for (AuctionHistory auctionHistory : auctionHistoryList) {
-//            if (auctionHistory.isSold()) {
-//                purchaseList.add(AuctionItemResponseDto.from(auctionItemRepository.findById(auctionHistory.)))
-//            }
-//        }
-//    }
+
+    // 옥션 히스토리에서 userId 가 같고 is_sold 가 true 인 값 -> 본인 구매 내역
+    public List<AuctionItemResponseDto> getPurchases(AuthUser authUser) {
+        User user = User.fromAuthUser(authUser);
+
+        return user.getAuctionHistoryList().stream()
+                .filter(AuctionHistory::isSold)
+                .map(auctionHistory -> AuctionItemResponseDto.from(auctionHistory.getAuctionItem()))
+                .collect(Collectors.toList());
+    }
 }

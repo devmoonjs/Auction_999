@@ -11,4 +11,5 @@ import java.util.List;
 
 public interface AuctionHistoryRepository extends JpaRepository<AuctionHistory, Long> {
 
+    List<AuctionHistory> findByUserId(long l);
 }
