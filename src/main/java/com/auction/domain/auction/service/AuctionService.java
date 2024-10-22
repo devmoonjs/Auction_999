@@ -13,6 +13,7 @@ import com.auction.domain.auction.event.publish.AuctionPublisher;
 import com.auction.domain.auction.repository.AuctionHistoryRepository;
 import com.auction.domain.auction.repository.AuctionItemRepository;
 import com.auction.domain.point.repository.PointRepository;
+import com.auction.domain.point.service.PointService;
 import com.auction.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,8 @@ public class AuctionService {
     private final AuctionItemRepository auctionItemRepository;
     private final AuctionHistoryRepository auctionHistoryRepository;
 
+    private final PointService pointService;
+
     private final AuctionPublisher auctionPublisher;
 
     private AuctionItem getAuctionItem(long auctionId) {
@@ -43,7 +46,6 @@ public class AuctionService {
         User user = User.fromAuth(authUser);
         AuctionItem auctionItem = getAuctionItem(auctionItemId);
 
-        // 10시 5분 마감인데 10시 10분에 신청하면 실패
         if (auctionItem.getExpireAt().isBefore(LocalDateTime.now())) {
             throw new ApiException(ErrorStatus._INVALID_BID_CLOSED_AUCTION);
         }
@@ -100,17 +102,15 @@ public class AuctionService {
         // 경매 낙찰
         else {
             AuctionHistory lastBidHistory = optionalLastBidHistory.get();
+
             // 구매자 경매 이력 수정
             lastBidHistory.changeIsSold(true);
             auctionHistoryRepository.save(lastBidHistory);
 
-            // TODO(Auction) : 포인트 차감
+            // 포인트 차감
+            pointService.decreasePoint(lastBidHistory.getUser().getId(), lastBidHistory.getPrice());
 
             // TODO(Auction) : 경매 낙찰로 인한 알림
         }
-    }
-
-    private long subtractTime(long millis1, long millis2) {
-        return Math.abs(millis1 - millis2);
     }
 }
