@@ -1,4 +1,4 @@
-package com.auction.domain.auth.dto.response;
+package com.auction.domain.user.dto.response;
 
 import com.auction.domain.user.entity.User;
 import com.auction.domain.user.enums.UserRole;
@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class SignupResponseDto {
+public class UserResponseDto {
 
     private final String email;
     private final String name;
@@ -17,8 +17,8 @@ public class SignupResponseDto {
     private final String address2;
     private final UserRole authority;
 
-    public static SignupResponseDto of(User user) {
-        return new SignupResponseDto(
+    public static UserResponseDto of(User user) {
+        return new UserResponseDto(
                 user.getEmail(),
                 user.getName(),
                 user.getNickName(),
@@ -26,6 +26,6 @@ public class SignupResponseDto {
                 user.getAddress1(),
                 user.getAddress2(),
                 user.getAuthority()
-                );
+        );
     }
 }

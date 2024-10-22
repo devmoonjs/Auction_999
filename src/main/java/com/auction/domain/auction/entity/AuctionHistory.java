@@ -1,9 +1,7 @@
 package com.auction.domain.auction.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.auction.domain.user.entity.User;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,4 +14,8 @@ public class AuctionHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private boolean isSold;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }
