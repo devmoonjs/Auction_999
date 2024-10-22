@@ -13,6 +13,7 @@ import com.auction.domain.auction.event.publish.AuctionPublisher;
 import com.auction.domain.auction.repository.AuctionHistoryRepository;
 import com.auction.domain.auction.repository.AuctionRepository;
 import com.auction.domain.point.repository.PointRepository;
+import com.auction.domain.point.service.PointService;
 import com.auction.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,8 @@ public class AuctionService {
     private final PointRepository pointRepository;
     private final AuctionRepository auctionRepository;
     private final AuctionHistoryRepository auctionHistoryRepository;
+
+    private final PointService pointService;
 
     private final AuctionPublisher auctionPublisher;
 
@@ -81,11 +84,11 @@ public class AuctionService {
 
     public void closeAuction(AuctionEvent auctionEvent) {
         long auctionId = auctionEvent.getAuctionId();
-        Auction auctionItem = getAuction(auctionId);
+        Auction auction = getAuction(auctionId);
         Optional<AuctionHistory> optionalLastBidHistory = auctionHistoryRepository.getLastBidAuctionHistory(auctionId);
 
         long originExpiredAt = auctionEvent.getExpiredAt();
-        long dataSourceExpiredAt = TimeConverter.toLong(auctionItem.getExpireAt());
+        long dataSourceExpiredAt = TimeConverter.toLong(auction.getExpireAt());
         // 마감 시간 수정
         if (dataSourceExpiredAt != originExpiredAt) {
             auctionEvent.changeAuctionExpiredAt(dataSourceExpiredAt);
@@ -100,17 +103,15 @@ public class AuctionService {
         // 경매 낙찰
         else {
             AuctionHistory lastBidHistory = optionalLastBidHistory.get();
+
             // 구매자 경매 이력 수정
             lastBidHistory.changeIsSold(true);
             auctionHistoryRepository.save(lastBidHistory);
 
-            // TODO(Auction) : 포인트 차감
+            // 포인트 차감
+            pointService.decreasePoint(lastBidHistory.getUser().getId(), lastBidHistory.getPrice());
 
             // TODO(Auction) : 경매 낙찰로 인한 알림
         }
-    }
-
-    private long subtractTime(long millis1, long millis2) {
-        return Math.abs(millis1 - millis2);
     }
 }

@@ -20,4 +20,8 @@ public class Point extends TimeStamped {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void changePoint(int pointAmount) {
+        this.pointAmount = pointAmount;
+    }
 }
