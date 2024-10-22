@@ -7,7 +7,6 @@ import com.auction.domain.payment.service.PaymentService;
 import com.auction.domain.point.dto.response.ChargeResponseDto;
 import com.auction.domain.point.entity.Point;
 import com.auction.domain.point.repository.PointRepository;
-import com.auction.domain.pointHistory.entity.PointHistory;
 import com.auction.domain.pointHistory.enums.PaymentType;
 import com.auction.domain.pointHistory.service.PointHistoryService;
 import com.auction.domain.user.entity.User;
@@ -59,6 +58,23 @@ public class PointService {
     @Transactional
     public void createPoint(User user) {
         Point point = new Point(0, user);
+        pointRepository.save(point);
+    }
+
+    private Point getPoint(long userId) {
+        return pointRepository.findByUserId(userId)
+                .orElseThrow(() -> new ApiException(ErrorStatus._INVALID_REQUEST));
+    }
+
+    public void decreasePoint(long userId, int price) {
+        Point point = getPoint(userId);
+        point.minusPoint(price);
+        pointRepository.save(point);
+    }
+
+    public void increasePoint(long userId, int price) {
+        Point point = getPoint(userId);
+        point.addPoint(price);
         pointRepository.save(point);
     }
 

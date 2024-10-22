@@ -25,6 +25,10 @@ public class Point extends TimeStamped {
         this.pointAmount += amount;
     }
 
+    public void minusPoint(int amount) {
+        this.pointAmount -= pointAmount;
+    }
+
     public Point(int pointAmount, User user) {
         this.pointAmount = pointAmount;
         this.user = user;

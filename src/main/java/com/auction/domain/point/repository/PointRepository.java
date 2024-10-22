@@ -12,4 +12,6 @@ public interface PointRepository extends JpaRepository<Point, Long> {
 
     @Query("SELECT pointAmount FROM Point WHERE user.id = ?1")
     int findPointByUserId(long userId);
+
+    Optional<Point> findByUserId(long userId);
 }
