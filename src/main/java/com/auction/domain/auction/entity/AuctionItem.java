@@ -1,6 +1,7 @@
 package com.auction.domain.auction.entity;
 
 import com.auction.common.entity.TimeStamped;
+import com.auction.domain.auction.enums.ItemCategory;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,9 +19,10 @@ public class AuctionItem extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String name;
     private String content;
     private int minPrice;
-    private String category;
+    private ItemCategory category;
     private LocalDateTime expireAt;
     private boolean isExtension;
 }
