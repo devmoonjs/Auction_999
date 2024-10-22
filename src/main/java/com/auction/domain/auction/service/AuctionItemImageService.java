@@ -2,7 +2,6 @@ package com.auction.domain.auction.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.auction.common.apipayload.status.ErrorStatus;
 import com.auction.common.entity.AuthUser;
 import com.auction.common.exception.ApiException;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -46,7 +44,7 @@ public class AuctionItemImageService {
         AuctionItem auctionItem = getAuctionItemWithUser(authUser, auctionItemId);
 
         List<AuctionItemImageResponseDto> responseDtos = new ArrayList<>();
-        List<String> supportedFileTypes = List.of("image/jpeg", "image/png", "image/gif", "application/pdf");
+        List<String> supportedFileTypes = List.of("image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf");
 
         for (MultipartFile file : files) {
             if(!supportedFileTypes.contains(file.getContentType())) {
@@ -76,7 +74,7 @@ public class AuctionItemImageService {
 
     @Transactional
     public String deleteImages(AuthUser authUser, Long auctionItemId, Long imageId) {
-        AuctionItem auctionItem = getAuctionItemWithUser(authUser, auctionItemId);
+        getAuctionItemWithUser(authUser, auctionItemId);
         AuctionItemImage auctionItemImage = auctionItemImageRepository.findById(imageId).orElseThrow(
                 () -> new ApiException(ErrorStatus._NOT_FOUND_AUCTION_ITEM_IMAGE)
         );
