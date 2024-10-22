@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
 public interface AuctionItemRepository extends JpaRepository<AuctionItem, Long> {
 
     Optional<AuctionItem> findByIdAndUserId(Long auctionId, Long userId);
