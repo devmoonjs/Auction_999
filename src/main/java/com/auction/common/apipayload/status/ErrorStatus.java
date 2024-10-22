@@ -23,7 +23,15 @@ public enum ErrorStatus implements BaseCode {
 
     // auction image
     _INVALID_IMAGE_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "415", "지원하지 않는 파일 형식입니다."),
-    _NOT_FOUND_AUCTION_ITEM_IMAGE(HttpStatus.NOT_FOUND, "404", "해당 경매 물품 사진을 찾을 수 없습니다.");
+    _NOT_FOUND_AUCTION_ITEM_IMAGE(HttpStatus.NOT_FOUND, "404", "해당 경매 물품 사진을 찾을 수 없습니다."),
+
+    // auction
+    _INVALID_BID_CLOSED_AUCTION(HttpStatus.BAD_REQUEST, "400", "이미 종료된 경매입니다."),
+    _INVALID_BID_REQUEST_USER(HttpStatus.BAD_REQUEST, "400", "경매 등록자는 경매에 참여할 수 없습니다."),
+    _INVALID_NOT_ENOUGH_POINT(HttpStatus.BAD_REQUEST, "400", "포인트 충전 후 다시 시도해주세요."),
+    _INVALID_LESS_THAN_MAX_PRICE(HttpStatus.BAD_REQUEST, "400", "입찰가는 최고 입찰가보다 높아야 합니다."),
+
+    ;
 
     private HttpStatus httpStatus;
     private String statusCode;
