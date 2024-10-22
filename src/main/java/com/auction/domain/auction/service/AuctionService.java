@@ -3,21 +3,27 @@ package com.auction.domain.auction.service;
 import com.auction.common.apipayload.status.ErrorStatus;
 import com.auction.common.entity.AuthUser;
 import com.auction.common.exception.ApiException;
+import com.auction.common.utils.TimeConverter;
+import com.auction.domain.auction.dto.AuctionEvent;
 import com.auction.domain.auction.dto.request.BidCreateRequestDto;
 import com.auction.domain.auction.dto.response.BidCreateResponseDto;
 import com.auction.domain.auction.entity.AuctionHistory;
 import com.auction.domain.auction.entity.AuctionItem;
+import com.auction.domain.auction.event.publish.AuctionPublisher;
 import com.auction.domain.auction.repository.AuctionHistoryRepository;
 import com.auction.domain.auction.repository.AuctionItemRepository;
 import com.auction.domain.point.repository.PointRepository;
 import com.auction.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -26,7 +32,9 @@ public class AuctionService {
     private final AuctionItemRepository auctionItemRepository;
     private final AuctionHistoryRepository auctionHistoryRepository;
 
-    private AuctionItem getAuctionItem(Long auctionId) {
+    private final AuctionPublisher auctionPublisher;
+
+    private AuctionItem getAuctionItem(long auctionId) {
         return auctionItemRepository.findById(auctionId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._NOT_FOUND_AUCTION_ITEM));
     }
@@ -69,5 +77,40 @@ public class AuctionService {
         auctionHistoryRepository.save(auctionHistory);
 
         return BidCreateResponseDto.of(user.getId(), auctionItem);
+    }
+
+    public void closeAuction(AuctionEvent auctionEvent) {
+        long auctionItemId = auctionEvent.getAuctionItemId();
+        AuctionItem auctionItem = getAuctionItem(auctionItemId);
+        Optional<AuctionHistory> optionalLastBidHistory = auctionHistoryRepository.getLastBidAuctionHistory(auctionItemId);
+
+        long originExpiredAt = auctionEvent.getExpiredAt();
+        long dataSourceExpiredAt = TimeConverter.toLong(auctionItem.getExpireAt());
+        // 마감 시간 수정
+        if (dataSourceExpiredAt != originExpiredAt) {
+            auctionEvent.changeAuctionExpiredAt(dataSourceExpiredAt);
+            auctionPublisher.auctionProcessPublisher(auctionEvent, originExpiredAt, dataSourceExpiredAt);
+            return;
+        }
+
+        // 경매 유찰
+        if (optionalLastBidHistory.isEmpty()) {
+            // TODO(Auction) : 경매 유찰로 인한 알림
+        }
+        // 경매 낙찰
+        else {
+            AuctionHistory lastBidHistory = optionalLastBidHistory.get();
+            // 구매자 경매 이력 수정
+            lastBidHistory.changeIsSold(true);
+            auctionHistoryRepository.save(lastBidHistory);
+
+            // TODO(Auction) : 포인트 차감
+
+            // TODO(Auction) : 경매 낙찰로 인한 알림
+        }
+    }
+
+    private long subtractTime(long millis1, long millis2) {
+        return Math.abs(millis1 - millis2);
     }
 }

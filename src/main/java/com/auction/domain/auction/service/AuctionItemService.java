@@ -3,11 +3,14 @@ package com.auction.domain.auction.service;
 import com.auction.common.apipayload.status.ErrorStatus;
 import com.auction.common.entity.AuthUser;
 import com.auction.common.exception.ApiException;
+import com.auction.common.utils.TimeConverter;
+import com.auction.domain.auction.dto.AuctionEvent;
 import com.auction.domain.auction.dto.request.AuctionItemChangeRequestDto;
 import com.auction.domain.auction.dto.request.AuctionItemCreateRequestDto;
 import com.auction.domain.auction.dto.response.AuctionItemResponseDto;
 import com.auction.domain.auction.entity.AuctionItem;
 import com.auction.domain.auction.enums.ItemCategory;
+import com.auction.domain.auction.event.publish.AuctionPublisher;
 import com.auction.domain.auction.repository.AuctionItemRepository;
 import com.auction.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +19,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AuctionItemService {
 
     private final AuctionItemRepository auctionItemRepository;
+
+    private final AuctionPublisher auctionPublisher;
 
     private AuctionItem getItem(Long auctionItemId) {
         return auctionItemRepository.findById(auctionItemId).orElseThrow(
@@ -40,6 +47,13 @@ public class AuctionItemService {
         AuctionItem auctionItem = AuctionItem.of(User.fromAuthUser(authUser), requestDto.getName(), requestDto.getContent(),
                 requestDto.getMinPrice(), requestDto.getMinPrice(), ItemCategory.of(requestDto.getCategory()), requestDto.getExpireAt(), requestDto.isAutoExtension());
         AuctionItem savedAuctionItem = auctionItemRepository.save(auctionItem);
+
+        // 경매 시작
+        auctionPublisher.auctionProcessPublisher(
+                AuctionEvent.from(savedAuctionItem),
+                TimeConverter.toLong(savedAuctionItem.getExpireAt()),
+                new Date().getTime()
+        );
         return AuctionItemResponseDto.from(savedAuctionItem);
     }
 
@@ -55,19 +69,19 @@ public class AuctionItemService {
     @Transactional
     public AuctionItemResponseDto updateAuctionItem(AuthUser authUser, Long auctionItemId, AuctionItemChangeRequestDto requestDto) {
         AuctionItem auctionItem = getAuctionItemWithUser(authUser, auctionItemId);
-        if(requestDto.getName() != null) {
+        if (requestDto.getName() != null) {
             auctionItem.changeName(requestDto.getName());
         }
-        if(requestDto.getContent() != null) {
+        if (requestDto.getContent() != null) {
             auctionItem.changeContent(requestDto.getContent());
         }
-        if(requestDto.getMinPrice() != null) {
+        if (requestDto.getMinPrice() != null) {
             auctionItem.changeMinPrice(requestDto.getMinPrice());
         }
-        if(requestDto.getCategory() != null) {
+        if (requestDto.getCategory() != null) {
             auctionItem.changeCategory(ItemCategory.of(requestDto.getCategory()));
         }
-        if(requestDto.getIsAutoExtension() != null) {
+        if (requestDto.getIsAutoExtension() != null) {
             auctionItem.changeAutoExtension(requestDto.getIsAutoExtension());
         }
         AuctionItem savedAuctionItem = auctionItemRepository.save(auctionItem);
