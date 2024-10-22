@@ -19,7 +19,11 @@ public enum ErrorStatus implements BaseCode {
     _NOT_FOUND_USER(HttpStatus.NOT_FOUND, "404", "권한이 없습니다."),
 
     // auction item
-    _NOT_FOUND_AUCTION_ITEM(HttpStatus.NOT_FOUND, "404", "해당 경매 물품을 찾을 수 없습니다.");
+    _NOT_FOUND_AUCTION_ITEM(HttpStatus.NOT_FOUND, "404", "해당 경매 물품을 찾을 수 없습니다."),
+
+    // auction image
+    _INVALID_IMAGE_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "415", "지원하지 않는 파일 형식입니다."),
+    _NOT_FOUND_AUCTION_ITEM_IMAGE(HttpStatus.NOT_FOUND, "404", "해당 경매 물품 사진을 찾을 수 없습니다.");
 
     private HttpStatus httpStatus;
     private String statusCode;
