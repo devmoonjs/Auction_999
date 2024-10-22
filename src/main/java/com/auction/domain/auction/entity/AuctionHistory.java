@@ -45,4 +45,8 @@ public class AuctionHistory {
     public static AuctionHistory of(boolean isSold, int price, Auction auction, User user) {
         return new AuctionHistory(isSold, price, auction, user);
     }
+
+    public void changeIsSold(boolean isSold) {
+        this.isSold = isSold;
+    }
 }

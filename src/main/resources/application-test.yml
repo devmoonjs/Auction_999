@@ -8,6 +8,20 @@ spring:
     console:
       enabled: true
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 3s
+          max-interval: 10s
+          max-attempts: 3
+          multiplier: 2
+
   jpa:
     hibernate:
       ddl-auto: create-drop
