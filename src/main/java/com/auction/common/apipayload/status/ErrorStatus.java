@@ -16,8 +16,10 @@ public enum ErrorStatus implements BaseCode {
 
     //Auth
     _NOT_AUTHENTICATIONPRINCIPAL_USER(HttpStatus.UNAUTHORIZED, "401", "인증되지 않은 유저입니다."),
-    _NOT_FOUND_USER(HttpStatus.NOT_FOUND, "404", "권한이 없습니다.");
+    _NOT_FOUND_USER(HttpStatus.NOT_FOUND, "404", "권한이 없습니다."),
 
+    // auction item
+    _NOT_FOUND_AUCTION_ITEM(HttpStatus.NOT_FOUND, "404", "해당 경매 물품을 찾을 수 없습니다.");
 
     private HttpStatus httpStatus;
     private String statusCode;
