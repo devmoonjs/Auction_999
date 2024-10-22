@@ -114,8 +114,4 @@ public class AuctionService {
             // TODO(Auction) : 경매 낙찰로 인한 알림
         }
     }
-
-    private long subtractTime(long millis1, long millis2) {
-        return Math.abs(millis1 - millis2);
-    }
 }
