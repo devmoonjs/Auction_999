@@ -11,6 +11,20 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
 
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 3s
+          max-interval: 10s
+          max-attempts: 3
+          multiplier: 2
+
   jpa:
     hibernate:
       ddl-auto: update
