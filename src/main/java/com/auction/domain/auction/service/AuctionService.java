@@ -38,7 +38,7 @@ public class AuctionService {
     private final AuctionPublisher auctionPublisher;
 
     private Auction getAuction(Long auctionId) {
-        return auctionRepository.findById(auctionId)
+        return auctionRepository.findByAuctionId(auctionId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._NOT_FOUND_AUCTION_ITEM));
     }
 
