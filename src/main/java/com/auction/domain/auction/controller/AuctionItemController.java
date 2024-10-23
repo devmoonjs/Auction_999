@@ -27,6 +27,7 @@ public class AuctionItemController {
      * @param requestDto
      * @return AuctionItemResponseDto
      */
+    // @Todo isAutoExtension 이 true로 안됨.... why???
     @PostMapping
     public ApiResponse<AuctionItemResponseDto> createAuctionItem(@AuthenticationPrincipal AuthUser authUser,
                                                                  @RequestBody AuctionItemCreateRequestDto requestDto) {
