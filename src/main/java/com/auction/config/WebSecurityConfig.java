@@ -38,7 +38,7 @@ public class WebSecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/v1/**").permitAll()
+                        .requestMatchers("/api/auth/v1/**","/error", "/style.css").permitAll()
                         .anyRequest().authenticated()
                 )
                 .build();
