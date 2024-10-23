@@ -5,5 +5,5 @@ import com.auction.domain.auction.entity.AuctionItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-public interface AuctionHistoryRepository extends JpaRepository<AuctionHistory, Long> {
+public interface AuctionHistoryRepository extends JpaRepository<AuctionHistory, Long>, AuctionItemQueryRepository {
 }

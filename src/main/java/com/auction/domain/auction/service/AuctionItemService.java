@@ -12,6 +12,7 @@ import com.auction.domain.auction.repository.AuctionItemRepository;
 import com.auction.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,5 +80,10 @@ public class AuctionItemService {
         AuctionItem auctionItem = getAuctionItemWithUser(authUser, auctionItemId);
         auctionItemRepository.delete(auctionItem);
         return "물품이 삭제되었습니다.";
+    }
+
+    public Page<AuctionItemResponseDto> searchAuctionItems(int page, int size, String name, String category, String sortBy) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return null;
     }
 }

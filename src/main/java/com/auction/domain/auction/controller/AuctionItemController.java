@@ -80,4 +80,13 @@ public class AuctionItemController {
     public ApiResponse<String> deleteAuctionItem(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long auctionItemId) {
         return ApiResponse.ok(auctionItemService.deleteAuctionItem(authUser, auctionItemId));
     }
+
+    @GetMapping("/search")
+    public ApiResponse<Page<AuctionItemResponseDto>> searchAuctionItems(@RequestParam(defaultValue = "1") int page,
+                                                                        @RequestParam(defaultValue = "5") int size,
+                                                                        @RequestParam(required = false) String name,
+                                                                        @RequestParam(required = false) String category,
+                                                                        @RequestParam(required = false) String sortBy) {
+        return ApiResponse.ok(auctionItemService.searchAuctionItems(page, size, name, category, sortBy));
+    }
 }
