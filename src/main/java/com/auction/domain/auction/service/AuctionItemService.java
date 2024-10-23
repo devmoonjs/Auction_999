@@ -4,11 +4,16 @@ import com.auction.common.apipayload.status.ErrorStatus;
 import com.auction.common.entity.AuthUser;
 import com.auction.common.exception.ApiException;
 import com.auction.domain.auction.dto.request.AuctionItemChangeRequestDto;
-import com.auction.domain.auction.dto.request.AuctionItemCreateRequestDto;
+import com.auction.domain.auction.dto.request.AuctionCreateRequestDto;
+import com.auction.domain.auction.dto.response.AuctionCreateResponseDto;
 import com.auction.domain.auction.dto.response.AuctionItemResponseDto;
+import com.auction.domain.auction.entity.Auction;
 import com.auction.domain.auction.entity.AuctionItem;
+import com.auction.domain.auction.entity.Item;
 import com.auction.domain.auction.enums.ItemCategory;
 import com.auction.domain.auction.repository.AuctionItemRepository;
+import com.auction.domain.auction.repository.AuctionRepository;
+import com.auction.domain.auction.repository.ItemRepository;
 import com.auction.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuctionItemService {
 
     private final AuctionItemRepository auctionItemRepository;
+    private final AuctionRepository auctionRepository;
+    private final ItemRepository itemRepository;
 
     private AuctionItem getItem(Long auctionItemId) {
         return auctionItemRepository.findById(auctionItemId).orElseThrow(
@@ -37,11 +44,19 @@ public class AuctionItemService {
     }
 
     @Transactional
-    public AuctionItemResponseDto createAuctionItem(AuthUser authUser, AuctionItemCreateRequestDto requestDto) {
-        AuctionItem auctionItem = AuctionItem.of(User.fromAuthUser(authUser), requestDto.getName(), requestDto.getContent(),
-                requestDto.getMinPrice(), requestDto.getMinPrice(), ItemCategory.of(requestDto.getCategory()), requestDto.getExpireAt(), requestDto.isAutoExtension());
-        AuctionItem savedAuctionItem = auctionItemRepository.save(auctionItem);
-        return AuctionItemResponseDto.from(savedAuctionItem);
+    public AuctionCreateResponseDto createAuctionItem(AuthUser authUser, AuctionCreateRequestDto requestDto) {
+//        AuctionItem auctionItem = AuctionItem.of(User.fromAuthUser(authUser), requestDto.getName(), requestDto.getContent(),
+//                requestDto.getMinPrice(), requestDto.getMinPrice(), ItemCategory.of(requestDto.getCategory()), requestDto.getExpireAt(), requestDto.isAutoExtension());
+//        AuctionItem savedAuctionItem = auctionItemRepository.save(auctionItem);
+//        return AuctionItemResponseDto.from(savedAuctionItem);
+
+        Item item = Item.of(requestDto.getItem().getName(),
+                requestDto.getItem().getDescription(),
+                ItemCategory.of(requestDto.getItem().getCategory()));
+        Item savedItem = itemRepository.save(item);
+        Auction auction = Auction.of(savedItem, User.fromAuthUser(authUser), requestDto.getMinPrice(), requestDto.isAutoExtension(), requestDto.getExpireAt());
+        Auction savedAuction = auctionRepository.save(auction);
+        return null;
     }
 
     public AuctionItemResponseDto getAuctionItem(Long auctionItemId) {

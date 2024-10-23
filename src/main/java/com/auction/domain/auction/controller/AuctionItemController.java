@@ -3,7 +3,8 @@ package com.auction.domain.auction.controller;
 import com.auction.common.apipayload.ApiResponse;
 import com.auction.common.entity.AuthUser;
 import com.auction.domain.auction.dto.request.AuctionItemChangeRequestDto;
-import com.auction.domain.auction.dto.request.AuctionItemCreateRequestDto;
+import com.auction.domain.auction.dto.request.AuctionCreateRequestDto;
+import com.auction.domain.auction.dto.response.AuctionCreateResponseDto;
 import com.auction.domain.auction.dto.response.AuctionItemResponseDto;
 import com.auction.domain.auction.service.AuctionItemService;
 import lombok.RequiredArgsConstructor;
@@ -20,35 +21,18 @@ import org.springframework.web.bind.annotation.*;
 public class AuctionItemController {
 
     private final AuctionItemService auctionItemService;
-
-    /**
-     * 옥션 물품 저장
-     * @param authUser
-     * @param requestDto
-     * @return AuctionItemResponseDto
-     */
-    // @Todo isAutoExtension 이 true로 안됨.... why???
+    
     @PostMapping
-    public ApiResponse<AuctionItemResponseDto> createAuctionItem(@AuthenticationPrincipal AuthUser authUser,
-                                                                 @RequestBody AuctionItemCreateRequestDto requestDto) {
+    public ApiResponse<AuctionCreateResponseDto> createAuctionItem(@AuthenticationPrincipal AuthUser authUser,
+                                                                   @RequestBody AuctionCreateRequestDto requestDto) {
         return ApiResponse.created(auctionItemService.createAuctionItem(authUser, requestDto));
     }
 
-    /**
-     * 옥션 물품 단건 조회
-     * @param auctionItemId
-     * @return AuctionItemResponseDto
-     */
     @GetMapping("/{auctionItemId}")
     public ApiResponse<AuctionItemResponseDto> getAuctionItem(@PathVariable Long auctionItemId) {
         return ApiResponse.ok(auctionItemService.getAuctionItem(auctionItemId));
     }
 
-    /**
-     * 옥션 물품 전체 조회
-     * @return Page<AuctionItemResponseDto>
-     */
-    // @Todo N+1 문제 해결하기 (user.getId() 로 user 수만큼 쿼리문 나감)
     @GetMapping
     public ApiResponse<Page<AuctionItemResponseDto>> getAuctionItemList(@PageableDefault(size = 5, sort = "modifiedAt", direction = Sort.Direction.DESC)
                                                                             Pageable pageable)
@@ -56,13 +40,6 @@ public class AuctionItemController {
         return ApiResponse.ok(auctionItemService.getAuctionItemList(pageable));
     }
 
-    /**
-     * 옥션 물품 정보 수정
-     * @param authUser
-     * @param auctionItemId
-     * @param requestDto
-     * @return AuctionItemResponseDto
-     */
     @PutMapping("/{auctionItemId}")
     public ApiResponse<AuctionItemResponseDto> updateAuctionItem(@AuthenticationPrincipal AuthUser authUser,
                                                                  @PathVariable Long auctionItemId,
@@ -70,23 +47,18 @@ public class AuctionItemController {
         return ApiResponse.ok(auctionItemService.updateAuctionItem(authUser, auctionItemId, requestDto));
     }
 
-    /**
-     * 옥션 물품 삭제
-     * @param authUser
-     * @param auctionItemId
-     * @return 삭제 메시지
-     */
     @DeleteMapping("/{auctionItemId}")
     public ApiResponse<String> deleteAuctionItem(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long auctionItemId) {
         return ApiResponse.ok(auctionItemService.deleteAuctionItem(authUser, auctionItemId));
     }
 
-    @GetMapping("/search")
-    public ApiResponse<Page<AuctionItemResponseDto>> searchAuctionItems(@RequestParam(defaultValue = "1") int page,
-                                                                        @RequestParam(defaultValue = "5") int size,
-                                                                        @RequestParam(required = false) String name,
-                                                                        @RequestParam(required = false) String category,
-                                                                        @RequestParam(required = false) String sortBy) {
-        return ApiResponse.ok(auctionItemService.searchAuctionItems(page, size, name, category, sortBy));
-    }
+    // @Todo V2 : 검색
+//    @GetMapping("/search")
+//    public ApiResponse<Page<AuctionItemResponseDto>> searchAuctionItems(@RequestParam(defaultValue = "1") int page,
+//                                                                        @RequestParam(defaultValue = "5") int size,
+//                                                                        @RequestParam(required = false) String name,
+//                                                                        @RequestParam(required = false) String category,
+//                                                                        @RequestParam(required = false) String sortBy) {
+//        return ApiResponse.ok(auctionItemService.searchAuctionItems(page, size, name, category, sortBy));
+//    }
 }
