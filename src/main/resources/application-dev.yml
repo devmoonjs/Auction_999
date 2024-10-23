@@ -25,6 +25,11 @@ spring:
           max-attempts: 3
           multiplier: 2
 
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
   jpa:
     hibernate:
       ddl-auto: update

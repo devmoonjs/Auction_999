@@ -12,6 +12,7 @@ import com.auction.domain.auction.entity.AuctionHistory;
 import com.auction.domain.auction.event.publish.AuctionPublisher;
 import com.auction.domain.auction.repository.AuctionHistoryRepository;
 import com.auction.domain.auction.repository.AuctionRepository;
+import com.auction.domain.deposit.service.DepositService;
 import com.auction.domain.point.repository.PointRepository;
 import com.auction.domain.point.service.PointService;
 import com.auction.domain.user.entity.User;
@@ -34,34 +35,36 @@ public class AuctionService {
     private final AuctionHistoryRepository auctionHistoryRepository;
 
     private final PointService pointService;
+    //    private final PointHistoryService pointHistoryService;
+    private final DepositService depositService;
 
     private final AuctionPublisher auctionPublisher;
 
-    private Auction getAuction(Long auctionId) {
+    private Auction getAuction(long auctionId) {
         return auctionRepository.findById(auctionId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._NOT_FOUND_AUCTION_ITEM));
+                .orElseThrow(() -> new ApiException(ErrorStatus._NOT_FOUND_AUCTION));
     }
 
     public BidCreateResponseDto createBid(AuthUser authUser, long auctionId, BidCreateRequestDto bidCreateRequestDto) {
         User user = User.fromAuth(authUser);
         Auction auction = getAuction(auctionId);
 
-        // 10시 5분 마감인데 10시 10분에 신청하면 실패
-        if (auction.getExpireAt().isBefore(LocalDateTime.now())) {
-            throw new ApiException(ErrorStatus._INVALID_BID_CLOSED_AUCTION);
-        }
-
         if (Objects.equals(auction.getSeller().getId(), user.getId())) {
             throw new ApiException(ErrorStatus._INVALID_BID_REQUEST_USER);
         }
 
-        if (bidCreateRequestDto.getPrice() < auction.getMaxPrice()) {
+        if (auction.getExpireAt().isBefore(LocalDateTime.now())) {
+            throw new ApiException(ErrorStatus._INVALID_BID_CLOSED_AUCTION);
+        }
+
+        // 입찰가 변환 : ex) 15999 -> 15000
+        int bidPrice = (bidCreateRequestDto.getPrice() / 1000) * 1000;
+        if (bidPrice <= auction.getMaxPrice()) {
             throw new ApiException(ErrorStatus._INVALID_LESS_THAN_MAX_PRICE);
         }
 
-        // TODO(Auction) : 15988 => 15000 로 변환 (천원 단위로 결제)
-
-        if (pointRepository.findPointByUserId(user.getId()) < bidCreateRequestDto.getPrice()) {
+        int pointAmount = pointRepository.findPointByUserId(user.getId());
+        if (pointAmount < bidPrice) {
             throw new ApiException(ErrorStatus._INVALID_NOT_ENOUGH_POINT);
         }
 
@@ -73,11 +76,26 @@ public class AuctionService {
             auction.changeExpireAt(auction.getExpireAt().plusMinutes(10L));
         }
 
-        auction.changeMaxPrice(bidCreateRequestDto.getPrice());
-        auctionRepository.save(auction);
+        // 포인트 차감
+        depositService.getDeposit(user.getId(), auctionId).ifPresentOrElse(
+                (deposit) -> {
+                    int prevDeposit = Integer.parseInt(deposit.toString());
+                    int gap = bidPrice - prevDeposit;
+                    pointService.decreasePoint(user.getId(), gap);
+//                    pointHistoryService.createPointHistory(user, gap, PaymentType.SPEND);
+                },
+                () -> {
+                    pointService.decreasePoint(user.getId(), bidPrice);
+//                    pointHistoryService.createPointHistory(user, bidPrice, PaymentType.SPEND);
+                }
+        );
+        depositService.placeDeposit(user.getId(), auctionId, bidPrice);
 
-        AuctionHistory auctionHistory = AuctionHistory.of(false, bidCreateRequestDto.getPrice(), auction, user);
+        AuctionHistory auctionHistory = AuctionHistory.of(false, bidPrice, auction, user);
         auctionHistoryRepository.save(auctionHistory);
+
+        auction.changeMaxPrice(bidPrice);
+        auctionRepository.save(auction);
 
         return BidCreateResponseDto.of(user.getId(), auction);
     }

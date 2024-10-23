@@ -9,9 +9,13 @@ import java.util.Optional;
 
 @Repository
 public interface AuctionHistoryRepository extends JpaRepository<AuctionHistory, Long> {
-    Optional<AuctionHistory> findTopByAuctionItemIdOrderByCreatedAtDesc(Long auctionItemId);
+    Optional<AuctionHistory> findTopByAuctionIdOrderByCreatedAtDesc(long auctionId);
 
-    default Optional<AuctionHistory> getLastBidAuctionHistory(Long auctionItemId) {
-        return findTopByAuctionItemIdOrderByCreatedAtDesc(auctionItemId);
+    default boolean existsAuctionHistory(long auctionId) {
+        return findTopByAuctionIdOrderByCreatedAtDesc(auctionId).isPresent();
+    }
+
+    default Optional<AuctionHistory> getLastBidAuctionHistory(long auctionId) {
+        return findTopByAuctionIdOrderByCreatedAtDesc(auctionId);
     }
 }
