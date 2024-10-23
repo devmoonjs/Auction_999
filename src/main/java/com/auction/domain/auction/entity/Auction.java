@@ -56,6 +56,12 @@ public class Auction extends TimeStamped {
     public void changeItem(Item item) {
         this.item = item;
     }
+    public void changeExpireAt(LocalDateTime expireAt) {
+        this.expireAt = expireAt;
+    }
+    public void changeMaxPrice(int maxPrice) {
+        this.maxPrice = maxPrice;
+    }
     public Long getBuyerId() {
         return buyer != null ? buyer.getId() : null;
     }
