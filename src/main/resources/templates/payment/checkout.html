@@ -32,6 +32,7 @@
     var userId = [[${userId}]];
     var myClientKey = [[${clientKey}]];
     var amountValue = [[${amount}]];
+    var orderId = [[${orderId}]];
 
     const amount = {
         currency: "KRW",
@@ -76,10 +77,10 @@
                 await payment.requestPayment({
                     method: "CARD", // 카드 및 간편결제
                     amount,
-                    orderId: generateRandomString(),
+                    orderId: orderId,
                     orderName: "포인트 충전",
                     successUrl: window.location.origin + "/payment/success.html", // 결제 요청이 성공하면 리다이렉트되는 URL
-                    failUrl: window.location.origin + "/fail.html", // 결제 요청이 실패하면 리다이렉트되는 URL
+                    failUrl: window.location.origin + "/payment/fail.html", // 결제 요청이 실패하면 리다이렉트되는 URL
                     customerEmail: "customer123@gmail.com",
                     customerName: "김토스",
                     customerMobilePhone: "01012341234",

@@ -50,7 +50,7 @@
             amount: urlParams.get("amount"),
         };
 
-        const response = await fetch("/confirm/payment", {
+        const response = await fetch("/api/v1/points/buy/confirm", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -67,15 +67,17 @@
         return json;
     }
 
-    confirm()
-        .then(function (data) {
-            // TODO: 결제 승인에 성공했을 경우 UI 처리 로직을 구현하세요.
-            document.getElementById("response").innerHTML = `<pre>${JSON.stringify(data, null, 4)}</pre>`;
-        })
-        .catch((err) => {
-            // TODO: 결제 승인에 실패했을 경우 UI 처리 로직을 구현하세요.
-            window.location.href = `/fail.html?message=${err.message}&code=${err.code}`;
-        });
+    confirm();
+
+    // confirm()
+    //     .then(function (data) {
+    //         // TODO: 결제 승인에 성공했을 경우 UI 처리 로직을 구현하세요.
+    //         document.getElementById("response").innerHTML = `<pre>${JSON.stringify(data, null, 4)}</pre>`;
+    //     })
+    //     .catch((err) => {
+    //         // TODO: 결제 승인에 실패했을 경우 UI 처리 로직을 구현하세요.
+    //         window.location.href = `/payment/fail.html?message=${err.message}&code=${err.code}`;
+    //     });
 
     const paymentKeyElement = document.getElementById("paymentKey");
     const orderIdElement = document.getElementById("orderId");

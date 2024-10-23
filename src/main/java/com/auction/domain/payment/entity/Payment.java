@@ -1,6 +1,5 @@
-package com.auction.domain.point.entity;
+package com.auction.domain.payment.entity;
 
-import com.auction.common.entity.TimeStamped;
 import com.auction.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,22 +8,22 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-public class Point extends TimeStamped {
-
+public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private int pointAmount;
+
+    private String orderId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
     private User user;
 
-    public void addPoint(int amount) {
-        this.pointAmount += amount;
-    }
+    private int amount;
 
-    public Point(int pointAmount, User user) {
-        this.pointAmount = pointAmount;
+    public Payment(String orderId, User user, int amount) {
+        this.orderId = orderId;
         this.user = user;
+        this.amount = amount;
     }
 }

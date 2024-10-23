@@ -9,6 +9,7 @@ import com.auction.domain.auth.dto.request.SignoutRequest;
 import com.auction.domain.auth.dto.request.SignupRequestDto;
 import com.auction.domain.auth.dto.response.LoginResponseDto;
 import com.auction.domain.auth.dto.response.SignupResponseDto;
+import com.auction.domain.point.service.PointService;
 import com.auction.domain.user.entity.User;
 import com.auction.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +24,14 @@ public class AuthService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final PointService pointService;
 
     @Transactional
     public SignupResponseDto createUser(SignupRequestDto signupRequest) {
         String encodedPassword = passwordEncoder.encode(signupRequest.getPassword());
         User user = userRepository.save(new User(encodedPassword, signupRequest));
 
+        pointService.createPoint(user);
         return SignupResponseDto.of(user);
     }
 
