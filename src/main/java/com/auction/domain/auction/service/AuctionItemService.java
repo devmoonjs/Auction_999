@@ -6,18 +6,15 @@ import com.auction.common.exception.ApiException;
 import com.auction.domain.auction.dto.request.AuctionCreateRequestDto;
 import com.auction.domain.auction.dto.request.AuctionItemChangeRequestDto;
 import com.auction.domain.auction.dto.response.AuctionCreateResponseDto;
-import com.auction.domain.auction.dto.response.AuctionItemResponseDto;
 import com.auction.domain.auction.dto.response.AuctionResponseDto;
 import com.auction.domain.auction.entity.Auction;
 import com.auction.domain.auction.entity.Item;
 import com.auction.domain.auction.enums.ItemCategory;
-import com.auction.domain.auction.repository.AuctionItemRepository;
 import com.auction.domain.auction.repository.AuctionRepository;
 import com.auction.domain.auction.repository.ItemRepository;
 import com.auction.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class AuctionItemService {
 
-    private final AuctionItemRepository auctionItemRepository;
     private final AuctionRepository auctionRepository;
     private final ItemRepository itemRepository;
 
@@ -90,8 +86,9 @@ public class AuctionItemService {
         return "물품이 삭제되었습니다.";
     }
 
-    public Page<AuctionItemResponseDto> searchAuctionItems(int page, int size, String name, String category, String sortBy) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        return null;
-    }
+    // @Todo
+//    public Page<AuctionItemResponseDto> searchAuctionItems(int page, int size, String name, String category, String sortBy) {
+//        Pageable pageable = PageRequest.of(page - 1, size);
+//        return null;
+//    }
 }
