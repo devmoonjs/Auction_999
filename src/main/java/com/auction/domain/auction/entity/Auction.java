@@ -53,4 +53,10 @@ public class Auction extends TimeStamped {
     public static Auction of(Item item, User seller, int minPrice, boolean isAutoExtension, LocalDateTime expireAt) {
         return new Auction(item, seller, minPrice, isAutoExtension, expireAt);
     }
+    public void changeItem(Item item) {
+        this.item = item;
+    }
+    public Long getBuyerId() {
+        return buyer != null ? buyer.getId() : null;
+    }
 }

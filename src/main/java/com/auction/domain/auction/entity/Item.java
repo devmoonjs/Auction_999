@@ -23,13 +23,18 @@ public class Item extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private ItemCategory category;
 
+    @OneToOne(mappedBy = "item", cascade = CascadeType.ALL)
+    private Auction auction;
+
     private Item(String name, String description, ItemCategory category) {
         this.name = name;
         this.description = description;
         this.category = category;
     }
-
     public static Item of(String name, String description, ItemCategory category) {
         return new Item(name,description,category);
     }
+    public void changeName(String name) {this.name = name;}
+    public void changeDescription(String description) {this.description = description;}
+    public void changeCategory(ItemCategory category) {this.category = category;}
 }

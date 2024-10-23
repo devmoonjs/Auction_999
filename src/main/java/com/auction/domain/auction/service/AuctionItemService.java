@@ -3,12 +3,12 @@ package com.auction.domain.auction.service;
 import com.auction.common.apipayload.status.ErrorStatus;
 import com.auction.common.entity.AuthUser;
 import com.auction.common.exception.ApiException;
-import com.auction.domain.auction.dto.request.AuctionItemChangeRequestDto;
 import com.auction.domain.auction.dto.request.AuctionCreateRequestDto;
+import com.auction.domain.auction.dto.request.AuctionItemChangeRequestDto;
 import com.auction.domain.auction.dto.response.AuctionCreateResponseDto;
 import com.auction.domain.auction.dto.response.AuctionItemResponseDto;
+import com.auction.domain.auction.dto.response.AuctionResponseDto;
 import com.auction.domain.auction.entity.Auction;
-import com.auction.domain.auction.entity.AuctionItem;
 import com.auction.domain.auction.entity.Item;
 import com.auction.domain.auction.enums.ItemCategory;
 import com.auction.domain.auction.repository.AuctionItemRepository;
@@ -31,69 +31,62 @@ public class AuctionItemService {
     private final AuctionRepository auctionRepository;
     private final ItemRepository itemRepository;
 
-    private AuctionItem getItem(Long auctionItemId) {
-        return auctionItemRepository.findById(auctionItemId).orElseThrow(
+    private Auction getAuctionById(Long auctionId) {
+        return auctionRepository.findById(auctionId).orElseThrow(
                 () -> new ApiException(ErrorStatus._NOT_FOUND_AUCTION_ITEM)
         );
     }
 
-    private AuctionItem getAuctionItemWithUser(AuthUser authUser, Long auctionItemId) {
-        return auctionItemRepository.findByIdAndUserId(auctionItemId, authUser.getId()).orElseThrow(
+    private Auction getAuctionWithUser(AuthUser authUser, Long auctionId) {
+        return auctionRepository.findByIdAndSellerId(auctionId, authUser.getId()).orElseThrow(
                 () -> new ApiException(ErrorStatus._NOT_FOUND_AUCTION_ITEM)
         );
     }
 
     @Transactional
-    public AuctionCreateResponseDto createAuctionItem(AuthUser authUser, AuctionCreateRequestDto requestDto) {
-//        AuctionItem auctionItem = AuctionItem.of(User.fromAuthUser(authUser), requestDto.getName(), requestDto.getContent(),
-//                requestDto.getMinPrice(), requestDto.getMinPrice(), ItemCategory.of(requestDto.getCategory()), requestDto.getExpireAt(), requestDto.isAutoExtension());
-//        AuctionItem savedAuctionItem = auctionItemRepository.save(auctionItem);
-//        return AuctionItemResponseDto.from(savedAuctionItem);
-
+    public AuctionCreateResponseDto createAuction(AuthUser authUser, AuctionCreateRequestDto requestDto) {
         Item item = Item.of(requestDto.getItem().getName(),
                 requestDto.getItem().getDescription(),
                 ItemCategory.of(requestDto.getItem().getCategory()));
         Item savedItem = itemRepository.save(item);
         Auction auction = Auction.of(savedItem, User.fromAuthUser(authUser), requestDto.getMinPrice(), requestDto.isAutoExtension(), requestDto.getExpireAt());
         Auction savedAuction = auctionRepository.save(auction);
-        return null;
+        return AuctionCreateResponseDto.from(savedAuction);
     }
 
-    public AuctionItemResponseDto getAuctionItem(Long auctionItemId) {
-        AuctionItem auctionItem = getItem(auctionItemId);
-        return AuctionItemResponseDto.from(auctionItem);
+    public AuctionResponseDto getAuction(Long auctionId) {
+        Auction auctionItem = getAuctionById(auctionId);
+        return AuctionResponseDto.from(auctionItem);
     }
 
-    public Page<AuctionItemResponseDto> getAuctionItemList(Pageable pageable) {
-        return auctionItemRepository.findAll(pageable).map(AuctionItemResponseDto::from);
+    public Page<AuctionResponseDto> getAuctionList(Pageable pageable) {
+        return auctionRepository.findAll(pageable).map(AuctionResponseDto::from);
     }
 
     @Transactional
-    public AuctionItemResponseDto updateAuctionItem(AuthUser authUser, Long auctionItemId, AuctionItemChangeRequestDto requestDto) {
-        AuctionItem auctionItem = getAuctionItemWithUser(authUser, auctionItemId);
+    public AuctionResponseDto updateAuctionItem(AuthUser authUser, Long auctionId, AuctionItemChangeRequestDto requestDto) {
+        Auction auction = getAuctionWithUser(authUser, auctionId);
+        Item item = auction.getItem();
+
         if(requestDto.getName() != null) {
-            auctionItem.changeName(requestDto.getName());
+            item.changeName(requestDto.getName());
         }
-        if(requestDto.getContent() != null) {
-            auctionItem.changeContent(requestDto.getContent());
-        }
-        if(requestDto.getMinPrice() != null) {
-            auctionItem.changeMinPrice(requestDto.getMinPrice());
+        if(requestDto.getDescription() != null) {
+            item.changeDescription(requestDto.getDescription());
         }
         if(requestDto.getCategory() != null) {
-            auctionItem.changeCategory(ItemCategory.of(requestDto.getCategory()));
+            item.changeCategory(ItemCategory.of(requestDto.getCategory()));
         }
-        if(requestDto.getIsAutoExtension() != null) {
-            auctionItem.changeAutoExtension(requestDto.getIsAutoExtension());
-        }
-        AuctionItem savedAuctionItem = auctionItemRepository.save(auctionItem);
-        return AuctionItemResponseDto.from(savedAuctionItem);
+
+        Item savedItem = itemRepository.save(item);
+        auction.changeItem(savedItem);
+        return AuctionResponseDto.from(auction);
     }
 
     @Transactional
-    public String deleteAuctionItem(AuthUser authUser, Long auctionItemId) {
-        AuctionItem auctionItem = getAuctionItemWithUser(authUser, auctionItemId);
-        auctionItemRepository.delete(auctionItem);
+    public String deleteAuctionItem(AuthUser authUser, Long auctionId) {
+        Auction auction = getAuctionWithUser(authUser, auctionId);
+        auctionRepository.delete(auction);
         return "물품이 삭제되었습니다.";
     }
 
