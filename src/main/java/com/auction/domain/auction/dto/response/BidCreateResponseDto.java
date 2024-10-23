@@ -14,7 +14,7 @@ public class BidCreateResponseDto {
     private final long userId;
     private final String name;
     private final ItemCategory category;
-    private final String content;
+    private final String description;
     private final LocalDateTime expireAt;
     private final int minPrice;
     private final int maxPrice;
