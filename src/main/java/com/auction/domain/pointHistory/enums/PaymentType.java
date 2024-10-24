@@ -1,5 +1,5 @@
 package com.auction.domain.pointHistory.enums;
 
 public enum PaymentType {
-    CHARGE, SPEND, RECEIVE, TRANSFER
+    CHARGE, SPEND, RECEIVE, TRANSFER, REFUND
 }

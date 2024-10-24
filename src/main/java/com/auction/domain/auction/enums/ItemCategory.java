@@ -26,19 +26,9 @@ public enum ItemCategory {
     DIGITAL_CONTENT;
 
     public static ItemCategory of(String category) {
-//        return Arrays.stream(ItemCategory.values())
-//                .filter(c -> c.name().equalsIgnoreCase(category))
-//                .findFirst()
-//                .orElseThrow(() -> new InvalidRequestStateException("유효하지 않은 카테고리 입니다."));
-
-        if (category == null || category.isBlank()) {
-            throw new IllegalArgumentException("Category name cannot be null or empty");
-        }
-
-        try {
-            return ItemCategory.valueOf(category.trim().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("No category found with name: " + category);
-        }
+        return Arrays.stream(ItemCategory.values())
+                .filter(c -> c.name().equalsIgnoreCase(category))
+                .findFirst()
+                .orElseThrow(() -> new InvalidRequestStateException("유효하지 않은 카테고리 입니다."));
     }
 }
