@@ -1,10 +1,18 @@
 package com.auction.domain.auction.repository;
 
 import com.auction.domain.auction.dto.response.AuctionResponseDto;
+import com.auction.domain.auction.entity.Auction;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+import java.util.Optional;
+
+import static com.auction.domain.auction.entity.QAuction.auction;
+import static com.auction.domain.auction.entity.QItem.item;
 
 public class AuctionQueryRepositoryImpl implements AuctionQueryRepository {
 
@@ -12,6 +20,28 @@ public class AuctionQueryRepositoryImpl implements AuctionQueryRepository {
 
     public AuctionQueryRepositoryImpl(EntityManager em) {
         queryFactory = new JPAQueryFactory(em);
+    }
+
+    @Override
+    public Page<AuctionResponseDto> findAllCustom(Pageable pageable) {
+        List<Auction> auctionList = queryFactory
+                .selectFrom(auction)
+                .leftJoin(auction.item, item).fetchJoin()
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .distinct()
+                .fetch();
+
+        long total = Optional.ofNullable(queryFactory
+                .select(auction.count())
+                .from(auction)
+                .fetchOne()).orElse(0L);
+
+        List<AuctionResponseDto> auctionResponseDtos = auctionList.stream()
+                .map(AuctionResponseDto::from)
+                .toList();
+
+        return new PageImpl<>(auctionResponseDtos, pageable, total);
     }
 
     @Override

@@ -56,7 +56,7 @@ public class AuctionItemService {
     }
 
     public Page<AuctionResponseDto> getAuctionList(Pageable pageable) {
-        return auctionRepository.findAll(pageable).map(AuctionResponseDto::from);
+        return auctionRepository.findAllCustom(pageable);
     }
 
     @Transactional
