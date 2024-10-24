@@ -21,6 +21,11 @@ public enum ErrorStatus implements BaseCode {
     // auction item
     _NOT_FOUND_AUCTION_ITEM(HttpStatus.NOT_FOUND, "404", "해당 경매 물품을 찾을 수 없습니다."),
 
+    // pay
+    _INVALID_AMOUNT_REQUEST(HttpStatus.BAD_REQUEST, "400", "결제 금액은 1000원 단위입니다."),
+    _INVALID_PAY_REQUEST(HttpStatus.BAD_REQUEST, "400", "잘못된 거래 승인 요청입니다."),
+    _INVALID_CONVERT_REQUEST(HttpStatus.BAD_REQUEST, "400", "현재 포인트 잔고보다 더 큰 값을 전환 요청할 수 없습니다."),
+
     // auction image
     _INVALID_IMAGE_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "415", "지원하지 않는 파일 형식입니다."),
     _NOT_FOUND_AUCTION_ITEM_IMAGE(HttpStatus.NOT_FOUND, "404", "해당 경매 물품 사진을 찾을 수 없습니다."),

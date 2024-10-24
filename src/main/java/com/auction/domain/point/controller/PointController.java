@@ -1,16 +1,18 @@
 package com.auction.domain.point.controller;
 
 import com.auction.common.apipayload.ApiResponse;
+import com.auction.common.apipayload.status.ErrorStatus;
 import com.auction.common.entity.AuthUser;
+import com.auction.common.exception.ApiException;
 import com.auction.domain.payment.service.PaymentService;
+import com.auction.domain.point.dto.request.ConvertRequestDto;
 import com.auction.domain.point.dto.response.ChargeResponseDto;
+import com.auction.domain.point.dto.response.ConvertResponseDto;
 import com.auction.domain.point.service.PointService;
 import com.auction.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,6 +35,11 @@ public class PointController {
     public String getPaymentPage(@AuthenticationPrincipal AuthUser authUser,
                                  @RequestParam int amount,
                                  Model model) {
+
+        if (amount < 1000 || amount % 1000 != 0) {
+            throw new ApiException(ErrorStatus._INVALID_AMOUNT_REQUEST);
+        }
+
         String orderId = UUID.randomUUID().toString().substring(0, 10);
 
         model.addAttribute("userId", authUser.getId());
@@ -51,5 +58,12 @@ public class PointController {
         ChargeResponseDto chargeResponseDto = pointService.confirmPayment(jsonBody);
 
         return ApiResponse.ok(chargeResponseDto);
+    }
+
+    @PostMapping("/to-cash")
+    @ResponseBody
+    public ApiResponse<ConvertResponseDto> convertPoint(@AuthenticationPrincipal AuthUser authUser,
+                                                        @RequestBody ConvertRequestDto convertRequestDto) {
+        return ApiResponse.ok(pointService.convertPoint(authUser, convertRequestDto));
     }
 }
