@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class AuctionCreateRequestDto {
     @Min(value = 1000, message = "최소 금액은 1000원 입니다.")
     private int minPrice;
-    private boolean isAutoExtension;
+    private boolean autoExtension;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime expireAt;
