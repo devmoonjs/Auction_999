@@ -1,4 +1,4 @@
-package com.auction.domain.auction.dto;
+package com.auction.domain.auction.event.dto;
 
 import com.auction.common.utils.TimeConverter;
 import com.auction.domain.auction.entity.Auction;

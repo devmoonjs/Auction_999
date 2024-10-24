@@ -16,13 +16,21 @@ public class AuctionPublisher {
     private final ObjectMapper objectMapper;
     private final RabbitTemplate rabbitTemplate;
 
-    public void auctionProcessPublisher(Object object, long targetTime1, long targetTime2) {
+    public void auctionPublisher(Object object, long targetTime1, long targetTime2) {
         try {
-            rabbitTemplate.convertAndSend("auction.process", "auction",
+            rabbitTemplate.convertAndSend("exchange.auction", "auction",
                     objectMapper.writeValueAsString(object), msg -> {
                         msg.getMessageProperties().setHeader("x-delay", subtractTime(targetTime1, targetTime2));
                         return msg;
                     });
+        } catch (JsonProcessingException e) {
+            throw new ApiException(ErrorStatus._INVALID_REQUEST);
+        }
+    }
+
+    public void refundPublisher(Object object) {
+        try {
+            rabbitTemplate.convertAndSend("exchange.refund", "refund.*", objectMapper.writeValueAsString(object));
         } catch (JsonProcessingException e) {
             throw new ApiException(ErrorStatus._INVALID_REQUEST);
         }

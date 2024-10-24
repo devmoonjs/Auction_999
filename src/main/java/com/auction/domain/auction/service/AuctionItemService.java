@@ -10,6 +10,7 @@ import com.auction.domain.auction.dto.response.AuctionResponseDto;
 import com.auction.domain.auction.entity.Auction;
 import com.auction.domain.auction.entity.Item;
 import com.auction.domain.auction.enums.ItemCategory;
+import com.auction.domain.auction.event.publish.AuctionPublisher;
 import com.auction.domain.auction.repository.AuctionRepository;
 import com.auction.domain.auction.repository.ItemRepository;
 import com.auction.domain.user.entity.User;
@@ -29,6 +30,8 @@ public class AuctionItemService {
 
     private final AuctionRepository auctionRepository;
     private final ItemRepository itemRepository;
+
+    private final AuctionPublisher auctionPublisher;
 
     private Auction getAuctionById(Long auctionId) {
         return auctionRepository.findById(auctionId).orElseThrow(
@@ -50,6 +53,7 @@ public class AuctionItemService {
         Item savedItem = itemRepository.save(item);
         Auction auction = Auction.of(savedItem, User.fromAuthUser(authUser), requestDto.getMinPrice(), requestDto.isAutoExtension(), requestDto.getExpireAt());
         Auction savedAuction = auctionRepository.save(auction);
+
         return AuctionCreateResponseDto.from(savedAuction);
     }
 

@@ -6,6 +6,7 @@ import com.auction.domain.auction.dto.request.AuctionCreateRequestDto;
 import com.auction.domain.auction.dto.request.AuctionItemChangeRequestDto;
 import com.auction.domain.auction.dto.response.AuctionCreateResponseDto;
 import com.auction.domain.auction.dto.response.AuctionResponseDto;
+import com.auction.domain.auction.service.AuctionItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

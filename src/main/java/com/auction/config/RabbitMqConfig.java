@@ -14,22 +14,46 @@ import java.util.Map;
 @Configuration
 public class RabbitMqConfig {
     @Bean
-    public CustomExchange auctionProcessExchange() {
+    public CustomExchange auctionExchange() {
         Map<String, Object> arguments = new HashMap<>();
         arguments.put("x-delayed-type", "direct");
-        return new CustomExchange("auction.process", "x-delayed-message", true, false, arguments);
+        return new CustomExchange("exchange.auction", "x-delayed-message", true, false, arguments);
     }
 
     @Bean
-    public Queue auctionProcessQueue() {
-        return QueueBuilder.durable("auction.process.queue")
-                .deadLetterExchange("auction.process.dlx")
+    public Queue auctionQueue() {
+        return QueueBuilder.durable("auction.queue")
+                .deadLetterExchange("auction.dlx")
                 .build();
     }
 
     @Bean
-    public Binding auctionProcessBinding(Queue auctionProcessQueue, CustomExchange auctionProcessExchange) {
-        return BindingBuilder.bind(auctionProcessQueue).to(auctionProcessExchange).with("auction").noargs();
+    public Binding auctionBinding(Queue auctionQueue, CustomExchange auctionExchange) {
+        return BindingBuilder
+                .bind(auctionQueue)
+                .to(auctionExchange)
+                .with("auction")
+                .noargs();
+    }
+
+    @Bean
+    TopicExchange refundExchange() {
+        return new TopicExchange("exchange.refund");
+    }
+
+    @Bean
+    Queue refundQueue() {
+        Map<String, Object> arguments = new HashMap<>();
+        arguments.put("x-queue-mode", "lazy");
+        return new Queue("refund.queue", false, false, false, arguments);
+    }
+
+    @Bean
+    Binding refundBinding(TopicExchange refundExchange, Queue refundQueue) {
+        return BindingBuilder
+                .bind(refundQueue)
+                .to(refundExchange)
+                .with("refund.*");
     }
 
     @Bean
@@ -46,12 +70,12 @@ public class RabbitMqConfig {
 
     @Bean
     public Queue deadLetterQueue() {
-        return QueueBuilder.durable("auction.process.dlq").build();
+        return QueueBuilder.durable("auction.dlq").build();
     }
 
     @Bean
     public FanoutExchange deadLetterExchange() {
-        return ExchangeBuilder.fanoutExchange("auction.process.dlx").build();
+        return ExchangeBuilder.fanoutExchange("auction.dlx").build();
     }
 
     @Bean
