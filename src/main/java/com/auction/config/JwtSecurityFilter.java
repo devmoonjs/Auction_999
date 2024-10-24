@@ -35,6 +35,12 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String authorizationHeader = httpRequest.getHeader("Authorization");
 
+        String url = httpRequest.getRequestURI();
+        if (url.startsWith("/api/v1/points/buy/confirm")) {
+            chain.doFilter(httpRequest, httpResponse);
+            return;
+        }
+
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String jwt = jwtUtil.substringToken(authorizationHeader);
             try {

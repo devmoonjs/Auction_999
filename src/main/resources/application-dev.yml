@@ -5,6 +5,31 @@ spring:
     password: ${LOCAL_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  thymeleaf:
+    cache: false
+    check-template-location: true
+    prefix: classpath:/templates/
+    suffix: .html
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 3s
+          max-interval: 10s
+          max-attempts: 3
+          multiplier: 2
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -14,6 +39,12 @@ spring:
         show_sql: true
         format_sql: true
         use_sql_comments: true
+
+payment:
+  client:
+    key: ${PAYMENT_CLIENT_KEY}
+  secret:
+    key: ${PAYMENT_SECRET_KEY}
 
 server:
   error:
