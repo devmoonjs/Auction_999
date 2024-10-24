@@ -1,7 +1,5 @@
 package com.auction.domain.point.service;
 
-import com.auction.common.apipayload.ApiResponse;
-import com.auction.common.apipayload.BaseCode;
 import com.auction.common.apipayload.status.ErrorStatus;
 import com.auction.common.entity.AuthUser;
 import com.auction.common.exception.ApiException;
@@ -86,18 +84,20 @@ public class PointService {
 
         return new ConvertResponseDto(convertRequestDto.getAmount(), point.getPointAmount());
     }
-  
+
     private Point getPoint(long userId) {
         return pointRepository.findByUserId(userId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._INVALID_REQUEST));
     }
 
+    @Transactional
     public void decreasePoint(long userId, int price) {
         Point point = getPoint(userId);
         point.minusPoint(price);
         pointRepository.save(point);
     }
 
+    @Transactional
     public void increasePoint(long userId, int price) {
         Point point = getPoint(userId);
         point.addPoint(price);
