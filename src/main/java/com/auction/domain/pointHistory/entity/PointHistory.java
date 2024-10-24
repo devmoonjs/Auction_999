@@ -1,6 +1,7 @@
-package com.auction.domain.point.entity;
+package com.auction.domain.pointHistory.entity;
 
 import com.auction.common.entity.TimeStamped;
+import com.auction.domain.pointHistory.enums.PaymentType;
 import com.auction.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,22 +10,23 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-public class Point extends TimeStamped {
-
+public class PointHistory extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private int pointAmount;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
     private User user;
 
-    public void addPoint(int amount) {
-        this.pointAmount += amount;
-    }
+    private int price;
 
-    public Point(int pointAmount, User user) {
-        this.pointAmount = pointAmount;
+    @Enumerated(EnumType.STRING)
+    private PaymentType paymentType;
+
+    public PointHistory(User user, int price, PaymentType paymentType) {
         this.user = user;
+        this.price = price;
+        this.paymentType = paymentType;
     }
 }
