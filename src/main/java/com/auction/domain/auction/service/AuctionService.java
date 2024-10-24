@@ -5,15 +5,22 @@ import com.auction.common.entity.AuthUser;
 import com.auction.common.exception.ApiException;
 import com.auction.common.utils.TimeConverter;
 import com.auction.domain.auction.dto.AuctionHistoryDto;
+import com.auction.domain.auction.dto.request.AuctionCreateRequestDto;
+import com.auction.domain.auction.dto.request.AuctionItemChangeRequestDto;
 import com.auction.domain.auction.dto.request.BidCreateRequestDto;
+import com.auction.domain.auction.dto.response.AuctionCreateResponseDto;
+import com.auction.domain.auction.dto.response.AuctionResponseDto;
 import com.auction.domain.auction.dto.response.BidCreateResponseDto;
 import com.auction.domain.auction.entity.Auction;
 import com.auction.domain.auction.entity.AuctionHistory;
+import com.auction.domain.auction.entity.Item;
+import com.auction.domain.auction.enums.ItemCategory;
 import com.auction.domain.auction.event.dto.AuctionEvent;
 import com.auction.domain.auction.event.dto.RefundEvent;
 import com.auction.domain.auction.event.publish.AuctionPublisher;
 import com.auction.domain.auction.repository.AuctionHistoryRepository;
 import com.auction.domain.auction.repository.AuctionRepository;
+import com.auction.domain.auction.repository.ItemRepository;
 import com.auction.domain.deposit.service.DepositService;
 import com.auction.domain.point.repository.PointRepository;
 import com.auction.domain.point.service.PointService;
@@ -22,6 +29,8 @@ import com.auction.domain.pointHistory.service.PointHistoryService;
 import com.auction.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,9 +40,10 @@ import java.util.Objects;
 
 @Slf4j
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuctionService {
+    private final ItemRepository itemRepository;
     private final PointRepository pointRepository;
     private final AuctionRepository auctionRepository;
     private final AuctionHistoryRepository auctionHistoryRepository;
@@ -49,6 +59,77 @@ public class AuctionService {
                 .orElseThrow(() -> new ApiException(ErrorStatus._NOT_FOUND_AUCTION));
     }
 
+    private Auction getAuctionById(Long auctionId) {
+        return auctionRepository.findById(auctionId).orElseThrow(
+                () -> new ApiException(ErrorStatus._NOT_FOUND_AUCTION_ITEM)
+        );
+    }
+
+    private Auction getAuctionWithUser(AuthUser authUser, Long auctionId) {
+        return auctionRepository.findByIdAndSellerId(auctionId, authUser.getId()).orElseThrow(
+                () -> new ApiException(ErrorStatus._NOT_FOUND_AUCTION_ITEM)
+        );
+    }
+
+    @Transactional
+    public AuctionCreateResponseDto createAuction(AuthUser authUser, AuctionCreateRequestDto requestDto) {
+        Item item = Item.of(requestDto.getItem().getName(),
+                requestDto.getItem().getDescription(),
+                ItemCategory.of(requestDto.getItem().getCategory()));
+        Item savedItem = itemRepository.save(item);
+        Auction auction = Auction.of(savedItem, User.fromAuthUser(authUser), requestDto.getMinPrice(), requestDto.isAutoExtension(), requestDto.getExpireAt());
+        Auction savedAuction = auctionRepository.save(auction);
+
+        auctionPublisher.auctionPublisher(
+                AuctionEvent.from(savedAuction),
+                TimeConverter.toLong(savedAuction.getExpireAt()),
+                TimeConverter.toLong(LocalDateTime.now())
+        );
+
+        return AuctionCreateResponseDto.from(savedAuction);
+    }
+
+    public AuctionResponseDto getAuction(Long auctionId) {
+        Auction auctionItem = getAuctionById(auctionId);
+        return AuctionResponseDto.from(auctionItem);
+    }
+
+    public Page<AuctionResponseDto> getAuctionList(Pageable pageable) {
+        return auctionRepository.findAllCustom(pageable);
+    }
+
+    @Transactional
+    public AuctionResponseDto updateAuctionItem(AuthUser authUser, Long auctionId, AuctionItemChangeRequestDto requestDto) {
+        Auction auction = getAuctionWithUser(authUser, auctionId);
+        Item item = auction.getItem();
+
+        if (requestDto.getName() != null) {
+            item.changeName(requestDto.getName());
+        }
+        if (requestDto.getDescription() != null) {
+            item.changeDescription(requestDto.getDescription());
+        }
+        if (requestDto.getCategory() != null) {
+            item.changeCategory(ItemCategory.of(requestDto.getCategory()));
+        }
+
+        Item savedItem = itemRepository.save(item);
+        auction.changeItem(savedItem);
+        return AuctionResponseDto.from(auction);
+    }
+
+    @Transactional
+    public String deleteAuctionItem(AuthUser authUser, Long auctionId) {
+        Auction auction = getAuctionWithUser(authUser, auctionId);
+        auctionRepository.delete(auction);
+        return "물품이 삭제되었습니다.";
+    }
+
+    public Page<AuctionResponseDto> searchAuctionItems(Pageable pageable, String name, String category, String sortBy) {
+        return auctionRepository.findByCustomSearch(pageable, name, category, sortBy);
+    }
+
+    @Transactional
     public BidCreateResponseDto createBid(AuthUser authUser, long auctionId, BidCreateRequestDto bidCreateRequestDto) {
         User user = User.fromAuthUser(authUser);
         Auction auction = getAuction(auctionId);
@@ -104,6 +185,7 @@ public class AuctionService {
         return BidCreateResponseDto.of(user.getId(), auction);
     }
 
+    @Transactional
     public void closeAuction(AuctionEvent auctionEvent) {
         long auctionId = auctionEvent.getAuctionId();
         Auction auction = getAuction(auctionId);
