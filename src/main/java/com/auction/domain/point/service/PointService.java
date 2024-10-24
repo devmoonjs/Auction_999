@@ -72,13 +72,17 @@ public class PointService {
     @Transactional
     public ConvertResponseDto convertPoint(AuthUser authUser, ConvertRequestDto convertRequestDto) {
         User user = User.fromAuthUser(authUser);
+        Point point = pointRepository.findByUser(user).orElseThrow(() -> new ApiException(ErrorStatus._NOT_FOUND_USER));
+        if (convertRequestDto.getAmount() > point.getPointAmount()) {
+            throw new ApiException(ErrorStatus._INVALID_CONVERT_REQUEST);
+        }
+
         // 계좌 정보로 이체하는 로직 있는 자리
 
         // point history 생성 및 저장
         pointHistoryService.createPointHistory(user, convertRequestDto.getAmount(), PaymentType.TRANSFER);
 
         // point 보유량 변화
-        Point point = pointRepository.findByUser(user).orElseThrow(() -> new ApiException(ErrorStatus._NOT_FOUND_USER));
         point.addPoint(convertRequestDto.getAmount());
 
         return new ConvertResponseDto(convertRequestDto.getAmount(), point.getPointAmount());
