@@ -22,10 +22,6 @@ public class AuctionItemController {
 
     private final AuctionItemService auctionItemService;
 
-    /*
-    @Todo n+1 -> fetch join
-     */
-
     /**
      * 경매 생성
      * @param authUser
