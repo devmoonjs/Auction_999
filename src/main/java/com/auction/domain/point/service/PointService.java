@@ -1,5 +1,7 @@
 package com.auction.domain.point.service;
 
+import com.auction.common.apipayload.ApiResponse;
+import com.auction.common.apipayload.BaseCode;
 import com.auction.common.apipayload.status.ErrorStatus;
 import com.auction.common.entity.AuthUser;
 import com.auction.common.exception.ApiException;
@@ -43,6 +45,10 @@ public class PointService {
     @Transactional
     public ChargeResponseDto confirmPayment(String jsonBody) throws IOException {
         JSONObject response = sendRequest(parseRequestData(jsonBody), API_SECRET_KEY, "https://api.tosspayments.com/v1/payments/confirm");
+        if (response.containsKey("error")) {
+            throw new ApiException(ErrorStatus._INVALID_PAY_REQUEST);
+        }
+
         String orderId = response.get("orderId").toString();
         Payment payment = paymentService.getPayment(orderId);
         User user = payment.getUser();

@@ -1,7 +1,9 @@
 package com.auction.domain.point.controller;
 
 import com.auction.common.apipayload.ApiResponse;
+import com.auction.common.apipayload.status.ErrorStatus;
 import com.auction.common.entity.AuthUser;
+import com.auction.common.exception.ApiException;
 import com.auction.domain.payment.service.PaymentService;
 import com.auction.domain.point.dto.request.ConvertRequestDto;
 import com.auction.domain.point.dto.response.ChargeResponseDto;
@@ -33,6 +35,11 @@ public class PointController {
     public String getPaymentPage(@AuthenticationPrincipal AuthUser authUser,
                                  @RequestParam int amount,
                                  Model model) {
+
+        if (amount < 1000 || amount % 1000 != 0) {
+            throw new ApiException(ErrorStatus._INVALID_AMOUNT_REQUEST);
+        }
+
         String orderId = UUID.randomUUID().toString().substring(0, 10);
 
         model.addAttribute("userId", authUser.getId());
