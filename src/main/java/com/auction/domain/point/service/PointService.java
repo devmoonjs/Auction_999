@@ -1,10 +1,13 @@
 package com.auction.domain.point.service;
 
 import com.auction.common.apipayload.status.ErrorStatus;
+import com.auction.common.entity.AuthUser;
 import com.auction.common.exception.ApiException;
 import com.auction.domain.payment.entity.Payment;
 import com.auction.domain.payment.service.PaymentService;
+import com.auction.domain.point.dto.request.ConvertRequestDto;
 import com.auction.domain.point.dto.response.ChargeResponseDto;
+import com.auction.domain.point.dto.response.ConvertResponseDto;
 import com.auction.domain.point.entity.Point;
 import com.auction.domain.point.repository.PointRepository;
 import com.auction.domain.pointHistory.entity.PointHistory;
@@ -40,8 +43,6 @@ public class PointService {
     @Transactional
     public ChargeResponseDto confirmPayment(String jsonBody) throws IOException {
         JSONObject response = sendRequest(parseRequestData(jsonBody), API_SECRET_KEY, "https://api.tosspayments.com/v1/payments/confirm");
-        int statusCode = response.containsKey("error") ? 400 : 200;
-        log.error(String.valueOf(statusCode));
         String orderId = response.get("orderId").toString();
         Payment payment = paymentService.getPayment(orderId);
         User user = payment.getUser();
@@ -60,6 +61,21 @@ public class PointService {
     public void createPoint(User user) {
         Point point = new Point(0, user);
         pointRepository.save(point);
+    }
+
+    @Transactional
+    public ConvertResponseDto convertPoint(AuthUser authUser, ConvertRequestDto convertRequestDto) {
+        User user = User.fromAuthUser(authUser);
+        // 계좌 정보로 이체하는 로직 있는 자리
+
+        // point history 생성 및 저장
+        pointHistoryService.createPointHistory(user, convertRequestDto.getAmount(), PaymentType.TRANSFER);
+
+        // point 보유량 변화
+        Point point = pointRepository.findByUser(user).orElseThrow(() -> new ApiException(ErrorStatus._NOT_FOUND_USER));
+        point.addPoint(convertRequestDto.getAmount());
+
+        return new ConvertResponseDto(convertRequestDto.getAmount(), point.getPointAmount());
     }
 
     private JSONObject sendRequest(JSONObject requestData, String secretKey, String urlString) throws IOException {
