@@ -38,6 +38,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +63,10 @@ public class AuctionService {
     private final NotificationService notificationService;
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final KafkaTemplate<String, RefundEvent> kafkaTemplate;
+
+    @Value("${kafka.topic.refund}")
+    private String refundTopic;
 
     @Value("${notification.related-url.auction}")
     private String relatedAuctionUrl;
@@ -197,7 +202,8 @@ public class AuctionService {
                         int price = Objects.requireNonNull(tuple.getScore()).intValue();
                         if (userId != user.getId()) {
                             AuctionHistoryDto auctionHistoryDto = AuctionHistoryDto.of(userId, price);
-                            auctionPublisher.refundPublisher(RefundEvent.from(auctionId, auctionHistoryDto));
+                            kafkaTemplate.send(refundTopic, RefundEvent.from(auctionId, auctionHistoryDto));
+//                            auctionPublisher.refundPublisher(RefundEvent.from(auctionId, auctionHistoryDto));
                         }
                     }
                 });

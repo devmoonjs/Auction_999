@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-//@RestController
-//@RequestMapping("/api/v0")
+@RestController
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class AuctionController {
     private final AuctionService auctionService;
@@ -33,7 +33,7 @@ public class AuctionController {
      * @param requestDto
      * @return AuctionCreateResponseDto
      */
-    @PostMapping("/v1/auctions")
+    @PostMapping("/v4/auctions")
     public ApiResponse<AuctionCreateResponseDto> createAuction(@AuthenticationPrincipal AuthUser authUser,
                                                                @Valid @RequestBody AuctionCreateRequestDto requestDto) {
         return ApiResponse.created(auctionService.createAuction(authUser, requestDto));
@@ -44,7 +44,7 @@ public class AuctionController {
      * @param auctionId
      * @return AuctionResponseDto
      */
-    @GetMapping("/v1/auctions/{auctionId}")
+    @GetMapping("/v4/auctions/{auctionId}")
     public ApiResponse<AuctionResponseDto> getAuction(@PathVariable Long auctionId) {
         return ApiResponse.ok(auctionService.getAuction(auctionId));
     }
@@ -54,7 +54,7 @@ public class AuctionController {
      * @param pageable
      * @return AuctionResponseDto
      */
-    @GetMapping("/v1/auctions")
+    @GetMapping("/v4/auctions")
     public ApiResponse<Page<AuctionResponseDto>> getAuctionList(@PageableDefault(size = 5, sort = "modifiedAt", direction = Sort.Direction.DESC)
                                                                 Pageable pageable)
     {
@@ -68,7 +68,7 @@ public class AuctionController {
      * @param requestDto
      * @return AuctionResponseDto
      */
-    @PutMapping("/v1/auctions/{auctionId}")
+    @PutMapping("/v4/auctions/{auctionId}")
     public ApiResponse<AuctionResponseDto> updateAuctionItem(@AuthenticationPrincipal AuthUser authUser,
                                                              @PathVariable Long auctionId,
                                                              @Valid @RequestBody AuctionItemChangeRequestDto requestDto) {
@@ -81,7 +81,7 @@ public class AuctionController {
      * @param auctionId
      * @return 삭제 메시지
      */
-    @DeleteMapping("/v1/auctions/{auctionId}")
+    @DeleteMapping("/v4/auctions/{auctionId}")
     public ApiResponse<String> deleteAuctionItem(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long auctionId) {
         return ApiResponse.ok(auctionService.deleteAuctionItem(authUser, auctionId));
     }
@@ -93,7 +93,7 @@ public class AuctionController {
      * @param bidCreateRequestDto
      * @return
      */
-    @PostMapping("/v2/auctions/{auctionId}/bid")
+    @PostMapping("/v4/auctions/{auctionId}/bid")
     public ApiResponse<BidCreateResponseDto> createBid(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable("auctionId") Long auctionId,
@@ -106,7 +106,7 @@ public class AuctionController {
      * 경매 랭킹 조회
      * @return List<AuctionRankingResponseDto>
      */
-    @GetMapping("/v2/auctions/rankings")
+    @GetMapping("/v4/auctions/rankings")
     public ApiResponse<List<AuctionRankingResponseDto>> getRankingList() {
         return ApiResponse.ok(auctionService.getRankingList());
     }

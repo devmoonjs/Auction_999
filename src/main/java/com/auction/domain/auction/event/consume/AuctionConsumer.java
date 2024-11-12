@@ -2,7 +2,7 @@ package com.auction.domain.auction.event.consume;
 
 import com.auction.domain.auction.event.dto.AuctionEvent;
 import com.auction.domain.auction.event.dto.RefundEvent;
-import com.auction.domain.auction.service.AuctionCommandService;
+//import com.auction.domain.auction.service.AuctionCommandService;
 import com.auction.domain.auction.service.AuctionService;
 import com.auction.domain.deposit.service.DepositService;
 import com.auction.domain.point.service.PointService;
@@ -26,14 +26,14 @@ public class AuctionConsumer {
     private final PointService pointService;
     private final PointHistoryService pointHistoryService;
     private final DepositService depositService;
-    private final AuctionCommandService auctionCommandService;
+//    private final AuctionCommandService auctionCommandService;
 
     @RabbitListener(queues = "auction.queue")
     public void auctionConsumer(String message) {
         try {
             log.info("AuctionEvent = {}", message);
             AuctionEvent auctionEvent = objectMapper.readValue(message, AuctionEvent.class);
-            auctionCommandService.closeAuction(auctionEvent);
+            auctionService.closeAuction(auctionEvent);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage());
         }

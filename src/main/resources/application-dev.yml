@@ -71,11 +71,18 @@ notification:
 
 kafka:
   topic:
+    refund: "refund-point-topic"
     coupon: "coupon-claim-topic"
   consumer:
-    group-id: "coupon-group"
+    coupon-group:
+      group-id: "coupon-group"
+    refund-group:
+      group-id: "refund-group"
   producer:
-    bootstrap-servers: "localhost:9092"
+    bootstrap-servers: "127.0.0.1:19092, 127.0.0.1:19093, 127.0.0.1:19094"
+    properties:
+      num.partitions: 3
+
 
 logging:
   level:

@@ -31,3 +31,8 @@ management:
       show-details: always
   security:
     enabled: false
+
+logging:
+  level:
+    com.zaxxer.hikari.HikariConfig: DEBUG
+    com.zaxxer.hikari: TRACE

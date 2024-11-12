@@ -85,6 +85,8 @@ dependencies {
     implementation 'org.springframework.kafka:spring-kafka'
 
     implementation 'net.datafaker:datafaker:2.4.0'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+
 
 
 
