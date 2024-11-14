@@ -5,6 +5,8 @@ import com.auction.common.exception.ApiException;
 import com.auction.domain.coupon.dto.request.CouponCreateRequestDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,23 +14,26 @@ import java.time.LocalDate;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@Table(name = "coupon")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Coupon {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @NotNull
+    @Column(name = "expire_at")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate expireAt;
 
     private Integer amount;
 
-    @Column(nullable = false)
+    @NotNull
     private String name;
 
-    @Column(nullable = false)
+    @NotNull
+    @Column(name = "discount_rate")
     private int discountRate;
 
     // 낙관적 락 사용시 추가

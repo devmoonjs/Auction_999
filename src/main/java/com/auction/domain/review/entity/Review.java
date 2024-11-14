@@ -3,29 +3,31 @@ package com.auction.domain.review.entity;
 import com.auction.domain.auction.entity.Auction;
 import com.auction.domain.review.dto.request.ReviewCreateRequestDto;
 import com.auction.domain.review.dto.request.ReviewUpdateRequestDto;
-import com.auction.domain.review.dto.response.ReviewResponseDto;
-import com.auction.domain.user.dto.request.UserUpdateRequestDto;
 import com.auction.domain.user.entity.User;
-import com.auction.domain.user.enums.UserRole;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@Table(name = "review")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "auctionId")
+    @JoinColumn(name = "auction_id")
     private Auction auction;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private User user;
 
     private String title;

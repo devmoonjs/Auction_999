@@ -2,12 +2,11 @@ package com.auction.domain.auction.event.consume;
 
 import com.auction.domain.auction.event.dto.AuctionEvent;
 import com.auction.domain.auction.event.dto.RefundEvent;
-//import com.auction.domain.auction.service.AuctionCommandService;
 import com.auction.domain.auction.service.AuctionService;
 import com.auction.domain.deposit.service.DepositService;
-import com.auction.domain.point.service.PointService;
-import com.auction.domain.pointHistory.enums.PaymentType;
-import com.auction.domain.pointHistory.service.PointHistoryService;
+//import com.auction.domain.point.service.PointService;
+//import com.auction.domain.pointHistory.enums.PaymentType;
+//import com.auction.domain.pointHistory.service.PointHistoryService;
 import com.auction.domain.user.entity.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,10 +22,9 @@ public class AuctionConsumer {
 
     private final ObjectMapper objectMapper;
     private final AuctionService auctionService;
-    private final PointService pointService;
-    private final PointHistoryService pointHistoryService;
+//    private final PointService pointService;
+//    private final PointHistoryService pointHistoryService;
     private final DepositService depositService;
-//    private final AuctionCommandService auctionCommandService;
 
     @RabbitListener(queues = "auction.queue")
     public void auctionConsumer(String message) {
@@ -45,8 +43,8 @@ public class AuctionConsumer {
             log.info("RefundEvent = {}", message);
             RefundEvent refundEvent = objectMapper.readValue(message, RefundEvent.class);
             depositService.deleteDeposit(refundEvent.getUserId(), refundEvent.getAuctionId());
-            pointService.increasePoint(refundEvent.getUserId(), refundEvent.getDeposit());
-            pointHistoryService.createPointHistory(User.fromUserId(refundEvent.getUserId()), refundEvent.getDeposit(), PaymentType.REFUND);
+//            pointService.increasePoint(refundEvent.getUserId(), refundEvent.getDeposit());
+//            pointHistoryService.createPointHistory(User.fromUserId(refundEvent.getUserId()), refundEvent.getDeposit(), PaymentType.REFUND);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage());
         }

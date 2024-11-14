@@ -25,10 +25,10 @@ import com.auction.domain.auction.repository.ItemRepository;
 import com.auction.domain.deposit.service.DepositService;
 import com.auction.domain.notification.enums.NotificationType;
 import com.auction.domain.notification.service.NotificationService;
-import com.auction.domain.point.repository.PointRepository;
-import com.auction.domain.point.service.PointService;
-import com.auction.domain.pointHistory.enums.PaymentType;
-import com.auction.domain.pointHistory.service.PointHistoryService;
+//import com.auction.domain.point.repository.PointRepository;
+//import com.auction.domain.point.service.PointService;
+//import com.auction.domain.pointHistory.enums.PaymentType;
+//import com.auction.domain.pointHistory.service.PointHistoryService;
 import com.auction.domain.user.entity.User;
 import com.auction.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -50,11 +50,10 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AuctionService {
     private final ItemRepository itemRepository;
-    private final PointRepository pointRepository;
     private final AuctionRepository auctionRepository;
 
-    private final PointService pointService;
-    private final PointHistoryService pointHistoryService;
+//    private final PointService pointService;
+//    private final PointHistoryService pointHistoryService;
     private final DepositService depositService;
     private final UserService userService;
     private final AuctionItemElasticService elasticService;
@@ -163,7 +162,8 @@ public class AuctionService {
         int bidPrice = (bidCreateRequestDto.getPrice() / 1000) * 1000;
         validBidPrice(bidPrice, auction, auctionHistoryKey);
 
-        int pointAmount = pointRepository.findPointByUserId(user.getId());
+        int pointAmount = 0;
+//        int pointAmount = pointRepository.findPointByUserId(user.getId());
         if (pointAmount < bidPrice) {
             throw new ApiException(ErrorStatus._INVALID_NOT_ENOUGH_POINT);
         }
@@ -181,12 +181,12 @@ public class AuctionService {
                 (deposit) -> {
                     int prevDeposit = Integer.parseInt(deposit.toString());
                     int gap = bidPrice - prevDeposit;
-                    pointService.decreasePoint(user.getId(), gap);
-                    pointHistoryService.createPointHistory(user, gap, PaymentType.SPEND);
+//                    pointService.decreasePoint(user.getId(), gap);
+//                    pointHistoryService.createPointHistory(user, gap, PaymentType.SPEND);
                 },
                 () -> {
-                    pointService.decreasePoint(user.getId(), bidPrice);
-                    pointHistoryService.createPointHistory(user, bidPrice, PaymentType.SPEND);
+//                    pointService.decreasePoint(user.getId(), bidPrice);
+//                    pointHistoryService.createPointHistory(user, bidPrice, PaymentType.SPEND);
                 }
         );
         depositService.placeDeposit(user.getId(), auctionId, bidPrice);
@@ -203,7 +203,6 @@ public class AuctionService {
                         if (userId != user.getId()) {
                             AuctionHistoryDto auctionHistoryDto = AuctionHistoryDto.of(userId, price);
                             kafkaTemplate.send(refundTopic, RefundEvent.from(auctionId, auctionHistoryDto));
-//                            auctionPublisher.refundPublisher(RefundEvent.from(auctionId, auctionHistoryDto));
                         }
                     }
                 });
@@ -244,8 +243,8 @@ public class AuctionService {
         } else {
             // 경매 낙찰
             // 판매자 포인트 증가
-            pointService.increasePoint(auction.getSeller().getId(), auction.getMaxPrice());
-            pointHistoryService.createPointHistory(auction.getSeller(), auction.getMaxPrice(), PaymentType.RECEIVE);
+//            pointService.increasePoint(auction.getSeller().getId(), auction.getMaxPrice());
+//            pointHistoryService.createPointHistory(auction.getSeller(), auction.getMaxPrice(), PaymentType.RECEIVE);
 
             // 구매자 경매 이력 수정
             String buyerId = (String) result.iterator().next();

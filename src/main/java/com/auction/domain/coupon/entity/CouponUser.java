@@ -1,9 +1,10 @@
 package com.auction.domain.coupon.entity;
 
 import com.auction.common.entity.TimeStamped;
-import com.auction.domain.pointHistory.entity.PointHistory;
 import com.auction.domain.user.entity.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,31 +12,34 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@Table(name = "coupon_user")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CouponUser extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "couponId")
+    @JoinColumn(name = "coupon_id")
     private Coupon coupon;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private User user;
 
     private LocalDateTime usedAt;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pointHistoryId")
-    private PointHistory pointHistory;
+    @Column(name = "point_history_Id")
+    private Long pointHistoryId;
 
+    @NotNull
     private boolean isAvailable = true;
 
-    public void useCoupon(PointHistory pointHistory) {
-        this.pointHistory = pointHistory;
+    public void useCoupon(long pointHistoryId) {
+        this.pointHistoryId = pointHistoryId;
         this.isAvailable = false;
         this.usedAt = LocalDateTime.now();
     }

@@ -4,6 +4,7 @@ import com.auction.common.entity.TimeStamped;
 import com.auction.domain.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.time.LocalTime;
 
 @Getter
 @Entity
+@Table(name = "auction")
 @NoArgsConstructor
 public class Auction extends TimeStamped {
 
@@ -19,26 +21,37 @@ public class Auction extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "itemId", nullable = false)
+    @JoinColumn(name = "item_id")
     private Item item;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sellerId")
+    @JoinColumn(name = "seller_id")
     private User seller;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyerId")
+    @JoinColumn(name = "buyer_id")
     private User buyer;
 
-    @Column(nullable = false)
+    @NotNull
+    @Column(name = "min_price")
     private int minPrice;
+
+    @NotNull
+    @Column(name = "max_price")
     private int maxPrice;
 
+    @Column(name = "is_sold")
     private boolean isSold;
+
+    @NotNull
+    @Column(name = "is_auto_extension")
     private boolean isAutoExtension;
 
-    @Column(nullable = false)
+    @NotNull
+    @Column(name = "expire_at")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime expireAt;
 

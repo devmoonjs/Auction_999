@@ -6,6 +6,7 @@ import com.auction.domain.auth.dto.request.SignupRequestDto;
 import com.auction.domain.user.dto.request.UserUpdateRequestDto;
 import com.auction.domain.user.enums.UserRole;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +14,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@Table(name = "user")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends TimeStamped {
 
     @Id
